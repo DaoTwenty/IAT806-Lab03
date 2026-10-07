@@ -1,3 +1,4 @@
+// class for sounds playing iteratively
 class IterativeSound {
   constructor(files) {
     this.files = files;
@@ -5,6 +6,7 @@ class IterativeSound {
     this.num = this.files.length;
   }
 
+  // loading sounds async
   async setup() {
     this.sounds = [];
     for (let i = 0; i < this.files.length; i++) {
@@ -12,6 +14,7 @@ class IterativeSound {
     }
   }
 
+  // playing current sound and upadting index
   play() {
     this.sounds[this.start].play();
     this.start = (this.start + 1) % this.num;

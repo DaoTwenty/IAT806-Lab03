@@ -24,7 +24,7 @@ async function setup() {
   const canvas = createCanvas(700, 420);
   canvas.parent("sketch-holder");
 
-
+  // load all background images
   let bg_files = [];
   for (let i = 0; i < 5; i++) {
     bg_files.push("backgrounds/bg" + i + ".png");
@@ -32,6 +32,7 @@ async function setup() {
   bg = new AnimatedBackground(bg_files, "backgrounds/winter.png", BACKGROUND_SPEED);
   await bg.setup();
 
+  // load sounds as iterative sounds for zombies, freezing, and grenades
   zombie_sounds = new IterativeSound(sound_files("zombie", 10));
   grenade_sounds = new IterativeSound(sound_files("grenade", 6));
   freezing_sounds = new IterativeSound(sound_files("freezing", 3));
@@ -42,6 +43,7 @@ async function setup() {
   ice_block = await loadImage("ice/ice_block.png");
 }
 
+// create zimbie nymber n using the assets
 async function create_zombie(n, x) {
 
   let dance_files = [];
@@ -59,6 +61,7 @@ async function create_zombie(n, x) {
 
 }
 
+// help to list sound files
 function sound_files(name, count) {
   let files = [];
   for (let i = 0; i < count; i++) {
@@ -70,6 +73,7 @@ function sound_files(name, count) {
 function draw() {
   bg.background();
 
+  // drawing all the zombies and grenades
   for (let i = 0; i < zombies.length; i++) {
     zombies[i].draw();
   }
@@ -91,6 +95,7 @@ function draw() {
 }
 
 function keyPressed() {
+  // freeze zombies and background with space
   if (key === " ") {
     frozen = !frozen;
     if (frozen) {
@@ -107,10 +112,12 @@ function keyPressed() {
     }
   }
 
+  // add zombie with z, if not max number reached
   if ((key === "z") && frozen == false && zombies.length < NUM_ZOMBIES) {
     create_zombie(floor(random(1, 6)), random(70, width - 70));
   }
 
+  // create grenade
   if ((key === "g" || key === "G") && frozen == false) {
     spawn_grenade();
   }
@@ -123,6 +130,7 @@ async function spawn_grenade() {
   grenades.push(grenade);
 }
 
+//help to list explosion png images
 function explosion_files(count) {
   let files = [];
   for (let i = 0; i < count; i++) {
@@ -136,6 +144,7 @@ function mousePressed() {
     return;
   }
 
+  // if a grenade is clicked we drag it
   for (let i = grenades.length - 1; i >= 0; i--) {
     if (grenades[i].is_clicked()) {
       held_grenade = grenades[i];
@@ -144,6 +153,7 @@ function mousePressed() {
     }
   }
 
+  // if a zombie is clicked we play a grunt sound
   for (let i = zombies.length - 1; i >= 0; i--) {
     if (zombies[i].intact && zombies[i].is_clicked()) {
       zombie_sounds.play();
@@ -152,6 +162,7 @@ function mousePressed() {
   }
 }
 
+// update held grenade pos when dragging
 function mouseDragged() {
   if (held_grenade) {
     held_grenade.x = mouseX;
@@ -160,6 +171,7 @@ function mouseDragged() {
 }
 
 function mouseReleased() {
+  // we release the grenade if we have it
   if (!held_grenade) {
     return;
   }
@@ -167,12 +179,15 @@ function mouseReleased() {
   held_grenade = null;
   grenade.in_hand = false;
 
+  //check if we released grenade on any zombies
+  // if so we obliterate them!!!!!!!
   for (let zombie of zombies) {
     if (zombie.intact && zombie.is_clicked()) {
       zombie.obliterate();
     }
   }
 
+  // explose grenade
   grenade.explode();
   grenade_sounds.play();
 }
